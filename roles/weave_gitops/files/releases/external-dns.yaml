@@ -1,0 +1,15 @@
+---
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: external-dns
+  namespace: infra
+  annotations:
+    flux.weave.works/automated: "true"
+spec:
+  chart:
+    git: https://github.com/helm/charts.git
+    path: stable/external-dns
+    ref: master
+  values:
+    replicaCount: 1

@@ -1,0 +1,13 @@
+---
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: fluent-bit
+  namespace: infra
+  annotations:
+    flux.weave.works/automated: "true"
+spec:
+  chart:
+    git: https://github.com/helm/charts.git
+    path: stable/fluent-bit
+    ref: master

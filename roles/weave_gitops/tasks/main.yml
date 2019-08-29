@@ -145,37 +145,10 @@
 - name: add fluxcd helm repo
   shell: helm repo add fluxcd https://charts.fluxcd.io
 
-- name: install helm release CRD
-  shell: >
-     kubectl apply -f
-     https://raw.githubusercontent.com/fluxcd/helm-operator/master/deploy/flux-helm-release-crd.yaml
-  environment:
-    KUBECONFIG: /etc/kubernetes/admin.conf
-
-- name: create ssh key secret for Helm operator
+- name: create ssh key for Helm/Helm Operator
   command: ssh-keygen -q -N "" -f ./identity
   args:
     chdir: /home/ubuntu
-
-- name: create secret for helm operator ssh key 
-  shell: >
-      kubectl -n weave create secret generic helm-operator-ssh --from-file=./identity
-  environment:
-    KUBECONFIG: /etc/kubernetes/admin.conf
-  args:
-    chdir: /home/ubuntu
-
-- name: install helm operator in weave namespace
-  shell: >
-    helm upgrade --install  helm-operator --force fluxcd/helm-operator
-    --set git.ssh.secretName=helm-operator-ssh
-    --set-file git.ssh.known_hosts=/tmp/flux_known_hosts
-    --namespace weave
-  register: helm_operator_install
-
-- name: check helm operator install status
-  debug:
-    msg: "{{ helm_operator_install.stdout_lines }}"
 
 - name: check if infra namespace already exists
   shell: kubectl --kubeconfig /etc/kubernetes/admin.conf get ns
@@ -193,6 +166,14 @@
   args:
     chdir: /home/ubuntu
 
+- name: create secret for infra helm operator ssh key
+  shell: >
+      kubectl -n infra create secret generic helm-operator-ssh --from-file=./identity
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  args:
+    chdir: /home/ubuntu
+
 - name: install flux and connect to weave cloud
   shell: >
      helm upgrade --install --wait flux-infra
@@ -200,6 +181,7 @@
      --set token="{{ weave_token }}"
      --set git.secretName=helm-ssh
      --set-file ssh.known_hosts=/tmp/flux_known_hosts
+     --set helmOperator.create=true --set helmOperator.createCRD=true
      --namespace infra fluxcd/flux
   register: flux_install
 

@@ -83,7 +83,7 @@ kube_service_addresses: 192.168.0.0/18
 # internal network. When used, it will assign IP
 # addresses from this range to individual pods.
 # This network must be unused in your network infrastructure!
-kube_pods_subnet: 192.168.0.0/18
+kube_pods_subnet: 192.168.64.0/18
 
 # internal network node size allocation (optional). This is the size allocated
 # to each node on your network.  With these defaults you should have
